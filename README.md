@@ -1,0 +1,2 @@
+# Trae
+Trae AI Prject
