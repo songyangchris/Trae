@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片字幕生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 120px;
+            margin-right: 10px;
+        }
+        .preview-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        #previewCanvas {
+            max-width: 100%;
+            margin-top: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="number"], input[type="color"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图片字幕生成器</h1>
+        
+        <div class="input-group">
+            <label>选择文件：</label>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <div class="input-group">
+            <label>字幕高度(px)：</label>
+            <input type="number" id="subtitleHeight" value="40">
+            
+            <label>字体大小(px)：</label>
+            <input type="number" id="fontSize" value="20">
+        </div>
+
+        <div class="input-group">
+            <label>字体颜色：</label>
+            <input type="color" id="fontColor" value="#ffffff">
+            
+            <label>轮廓颜色：</label>
+            <input type="color" id="strokeColor" value="#000000">
+        </div>
+
+        <div class="input-group">
+            <label>字幕内容：</label>
+            <textarea id="subtitleText" placeholder="请输入字幕内容，每行一句"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button onclick="generateSubtitle()">生成字幕图片</button>
+            <button onclick="saveImage()">保存图片</button>
+        </div>
+
+        <div class="preview-container">
+            <canvas id="previewCanvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let originalImage = null;
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 监听图片上传
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    originalImage = new Image();
+                    originalImage.onload = function() {
+                        canvas.width = originalImage.width;
+                        canvas.height = originalImage.height;
+                        generateSubtitle();
+                    };
+                    originalImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 生成字幕
+        function generateSubtitle() {
+            if (!originalImage) return;
+
+            // 重置画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImage, 0, 0);
+
+            const subtitleHeight = parseInt(document.getElementById('subtitleHeight').value);
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            const fontColor = document.getElementById('fontColor').value;
+            const strokeColor = document.getElementById('strokeColor').value;
+            const subtitles = document.getElementById('subtitleText').value.split('\n').filter(line => line.trim());
+
+            // 设置字体样式
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // 计算字幕位置
+            const totalHeight = subtitles.length * subtitleHeight;
+            let startY = canvas.height - totalHeight;
+
+            // 获取第一行字幕位置的背景图片
+            const firstLineY = startY;
+            const backgroundImage = ctx.getImageData(0, firstLineY, canvas.width, subtitleHeight);
+
+            // 绘制每行字幕
+            subtitles.forEach((line, index) => {
+                const y = startY + (index + 0.5) * subtitleHeight;
+
+                // 在每行使用相同的背景图片
+                ctx.putImageData(backgroundImage, 0, startY + index * subtitleHeight);
+
+                // 绘制半透明背景
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, startY + index * subtitleHeight, canvas.width, subtitleHeight);
+
+                // 绘制分割线（除了最后一行）
+                if (index < subtitles.length - 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(0, startY + (index + 1) * subtitleHeight);
+                    ctx.lineTo(canvas.width, startY + (index + 1) * subtitleHeight);
+                    ctx.stroke();
+                }
+
+                // 绘制文字轮廓
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 3;
+                ctx.strokeText(line, canvas.width / 2, y);
+
+                // 绘制文字
+                ctx.fillStyle = fontColor;
+                ctx.fillText(line, canvas.width / 2, y);
+            });
+        }
+
+        // 保存图片
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'subtitle_image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
