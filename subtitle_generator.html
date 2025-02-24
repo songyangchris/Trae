@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图片字幕生成器</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .container {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
         .input-group {
             margin-bottom: 15px;
@@ -48,57 +51,70 @@
             margin-top: 20px;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #DE2910;
             color: white;
-            padding: 10px 20px;
+            padding: 16px 32px;
             border: none;
-            border-radius: 4px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
             cursor: pointer;
             margin: 0 10px;
+            transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #C4240E;
+            transform: translateY(-1px);
         }
-        input[type="number"], input[type="color"] {
-            padding: 5px;
+        input[type="number"], input[type="color"], input[type="file"] {
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 12px;
+            font-size: 16px;
+            background-color: #f5f5f7;
+            transition: all 0.3s ease;
+        }
+        input[type="number"]:focus, input[type="color"]:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #DE2910;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(222, 41, 16, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>图片字幕生成器</h1>
+        <h1>Subtitle Generator<br><span style="font-size: 18px; color: #666; font-weight: 400;">图片字幕生成器</span></h1>
         
         <div class="input-group">
-            <label>选择文件：</label>
+            <label>Select Image File<br><span style="font-size: 14px; color: #666;">选择图片文件</span></label>
             <input type="file" id="imageInput" accept="image/*">
         </div>
 
         <div class="input-group">
-            <label>字幕高度(px)：</label>
+            <label>Subtitle Height (px)<br><span style="font-size: 14px; color: #666;">字幕高度</span></label>
             <input type="number" id="subtitleHeight" value="40">
             
-            <label>字体大小(px)：</label>
+            <label>Font Size (px)<br><span style="font-size: 14px; color: #666;">字体大小</span></label>
             <input type="number" id="fontSize" value="20">
         </div>
 
         <div class="input-group">
-            <label>字体颜色：</label>
+            <label>Font Color<br><span style="font-size: 14px; color: #666;">字体颜色</span></label>
             <input type="color" id="fontColor" value="#ffffff">
             
-            <label>轮廓颜色：</label>
+            <label>Outline Color<br><span style="font-size: 14px; color: #666;">轮廓颜色</span></label>
             <input type="color" id="strokeColor" value="#000000">
         </div>
 
         <div class="input-group">
-            <label>字幕内容：</label>
+            <label>Subtitle Content<br><span style="font-size: 14px; color: #666;">字幕内容</span></label>
             <textarea id="subtitleText" placeholder="请输入字幕内容，每行一句"></textarea>
         </div>
 
         <div class="button-group">
-            <button onclick="generateSubtitle()">生成字幕图片</button>
-            <button onclick="saveImage()">保存图片</button>
+            <button onclick="generateSubtitle()">Generate Subtitle 生成字幕</button>
+            <button onclick="saveImage()">Save Image 保存图片</button>
         </div>
 
         <div class="preview-container">

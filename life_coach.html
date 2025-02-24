@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Life Coach</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            padding: 24px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 16px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.ai .message-content {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .message.user .message-content {
+            background-color: #007AFF;
+            color: white;
+            text-align: left;
+        }
+
+        .input-container {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0,122,255,0.1);
+        }
+
+        button {
+            position: absolute;
+            right: 28px;
+            bottom: 28px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0066CC;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: #d2d2d7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background-color: #f5f5f7;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: 40px 0;
+            color: #86868b;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                欢迎来到 AI Life Coach，我是你的生活教练。<br>
+                让我们开始对话，探讨如何帮助你成长和进步。
+            </div>
+        </div>
+        <div class="input-container">
+            <textarea 
+                id="userInput" 
+                rows="3" 
+                placeholder="输入你想说的话..."
+                onkeydown="if(event.keyCode === 13 && !event.shiftKey) { event.preventDefault(); sendMessage(); }"
+            ></textarea>
+            <button onclick="sendMessage()" id="sendButton">发送</button>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+
+        function appendMessage(content, isUser = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.id = 'typingIndicator';
+            indicator.textContent = 'AI正在思考...';
+            chatContainer.appendChild(indicator);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            isProcessing = true;
+            sendButton.disabled = true;
+            userInput.disabled = true;
+
+            appendMessage(message, true);
+            showTypingIndicator();
+            userInput.value = '';
+
+            try {
+                const response = await fetch('http://localhost:3000/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+
+                const data = await response.json();
+                removeTypingIndicator();
+                appendMessage(data.reply);
+            } catch (error) {
+                removeTypingIndicator();
+                appendMessage('抱歉，发生了一些错误。请稍后再试。');
+                console.error('Error:', error);
+            } finally {
+                isProcessing = false;
+                sendButton.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }
+        }
+    </script>
+</body>
+</html>

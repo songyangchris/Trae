@@ -5,23 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chinese Name Generator</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .container {
             background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
         h1 {
-            color: #333;
+            color: #000;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: -0.5px;
         }
         .input-group {
             margin-bottom: 20px;
@@ -33,26 +39,36 @@
         }
         input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 17px;
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: #f5f5f7;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #DE2910;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(222, 41, 16, 0.1);
         }
         button {
             display: block;
             width: 100%;
-            padding: 12px;
-            background-color: #e74c3c;
+            padding: 16px;
+            background-color: #DE2910;
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #c0392b;
+            background-color: #C4240E;
+            transform: translateY(-1px);
         }
         button:disabled {
             background-color: #ccc;
@@ -62,16 +78,23 @@
             margin-top: 30px;
         }
         .name-card {
-            background-color: #f9f9f9;
+            background-color: #fff;
             border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease;
+        }
+        .name-card:hover {
+            transform: translateY(-2px);
         }
         .chinese-name {
-            font-size: 24px;
-            color: #e74c3c;
-            margin-bottom: 10px;
+            font-size: 36px;
+            color: #DE2910;
+            margin-bottom: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         .meaning {
             color: #666;
@@ -87,13 +110,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Chinese Name Generator</h1>
+        <h1>Chinese Name Generator<br><span style="font-size: 18px; color: #666; font-weight: 400;">中文姓名生成器</span></h1>
         <div class="input-group">
-            <label for="englishName">Enter your English name:</label>
+            <label for="englishName">Enter your English name<br><span style="font-size: 14px; color: #666;">请输入您的英文名</span></label>
             <input type="text" id="englishName" placeholder="e.g. John Smith">
         </div>
-        <button onclick="generateNames()" id="generateBtn">Generate Chinese Names</button>
-        <div class="loading" id="loading">Generating names...</div>
+        <button onclick="generateNames()" id="generateBtn">Generate Chinese Names 生成中文名</button>
+        <div class="loading" id="loading">Generating names... 正在生成...</div>
         <div class="result-container" id="resultContainer"></div>
     </div>
 
